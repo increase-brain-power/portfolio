@@ -1,0 +1,7 @@
+# Terraform
+terraform.tfvars
+.terraform*
+terraform.tfstate*
+
+# Local .envrc
+.envrc

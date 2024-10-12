@@ -1,0 +1,60 @@
+name: Terraform Deploy AKS Stack
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Authenticate to Azure
+        env:
+          CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          echo "Logging in to Azure"
+          az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+          az account set --subscription $SUBSCRIPTION_ID
+
+      - name: Set Terraform Variables
+        env:
+          TF_VAR_SUB_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          TF_VAR_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          TF_VAR_ResourceGroupBaseName: "portfolio"
+          TF_VAR_location: "East US"
+          TF_VAR_VNETName: "aks-stack-vnet"
+        run: echo "Environment variables for Terraform set"
+
+      # Step 1: Initialize
+      - name: Terraform Init - AKS Stack
+        working-directory: terraform-azure/aks-stack
+        run: terraform init
+
+      # Step 2: Plan Terraform Deployment
+      - name: Terraform Plan - AKS Stack
+        working-directory: terraform-azure/aks-stack
+        run: terraform plan
+
+      # Step 3: Apply Terraform Deployment
+      - name: Terraform Apply - AKS Stack
+        working-directory: terraform-azure/aks-stack
+        run: terraform apply -auto-approve
