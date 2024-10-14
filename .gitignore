@@ -5,3 +5,4 @@ terraform.tfstate*
 
 # Local .envrc
 .envrc
+*.*-E

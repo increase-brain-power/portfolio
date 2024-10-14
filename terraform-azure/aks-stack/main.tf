@@ -8,7 +8,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
   subscription_id = var.SUB_ID
   tenant_id       = var.TENANT_ID
   client_id       = var.CLIENT_ID
@@ -29,7 +33,12 @@ module "vnet" {
 
 module "db" {
   source = "./db"
+  environment = "AzureCloud"
   resource_group_name = azurerm_resource_group.rg.name
-  DBName = "aks-stack-db"
+  database_server_name = "aks-stack-db"
+  database_username = "aks_stack_admin"
+  database_password = var.DB_PASSWORD
+  virtual_network_id = module.vnet.vnet_id
+  delegated_subnet_id = module.vnet.database_subnet_id
   location = var.location
 }

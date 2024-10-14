@@ -16,6 +16,7 @@ variable "CLIENT_ID" {
 variable "CLIENT_SECRET" {
   description = "Azure Client Secret"
   type        = string
+  sensitive   = true
 }
 
 variable "ResourceGroupBaseName" {
@@ -27,5 +28,11 @@ variable "ResourceGroupBaseName" {
 variable "location" {
   description = "Location for the resources."
   type        = string
-  default     = "East US"
+  default     = "East US2"
+}
+
+variable "DB_PASSWORD" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
 }

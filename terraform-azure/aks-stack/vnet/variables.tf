@@ -3,6 +3,11 @@ variable "resource_group_name" {
   type        = string
 }
 
+variable "location" {
+  description = "Location for the resources."
+  type        = string
+}
+
 variable "VNETName" {
   description = "VNET name where the application will be hosted"
   type        = string
